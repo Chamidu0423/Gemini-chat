@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini AI Chat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'purple': {
+                            400: '#c084fc',
+                            500: '#a855f7',
+                            600: '#9333ea',
+                            700: '#7e22ce'
+                        },
+                        'pink': {
+                            400: '#f472b6',
+                            500: '#ec4899',
+                            600: '#db2777',
+                            700: '#be185d'
+                        },
+                        'blue': {
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+        .splash-screen.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .main-content {
+            opacity: 0;
+            transition: opacity 0.5s ease-in;
+        }
+        .main-content.visible {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-900 via-blue-900 to-purple-900 text-white min-h-screen">
+    <!-- Splash Screen -->
+    <div id="splash-screen" class="splash-screen">
+        <img src="/src/Ai.gif" alt="AI Avatar" class="w-32 h-32 rounded-full object-cover">
+    </div>
+
+    <div id="main-content" class="main-content">
+        <div class="max-w-5xl mx-auto px-4 py-8">
+            <header class="text-center mb-8">
+                <div class="inline-flex items-center justify-center space-x-2 bg-white/20 rounded-full px-4 py-2 backdrop-blur-sm border border-purple-500/30">
+                    <svg class="w-6 h-6 text-purple-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+                        <path d="M5 3v4"/>
+                        <path d="M19 17v4"/>
+                        <path d="M3 5h4"/>
+                        <path d="M17 19h4"/>
+                    </svg>
+                    <h1 class="text-2xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
+                        Welcome to Gemini Chat!
+                    </h1>
+                </div>
+            </header>
+
+            <!-- Main Chat Container -->
+            <div class="bg-white/10 rounded-2xl backdrop-blur-sm border border-purple-500/30 overflow-hidden shadow-2xl shadow-purple-500/20">
+                <!-- Messages Area -->
+                <div id="messages" class="h-[60vh] overflow-y-auto p-6 space-y-6">
+                    <div class="flex flex-col items-center justify-center h-full text-center space-y-4" id="welcome-message">
+                        <div class="p-4 rounded-full bg-gradient-to-r from-purple-500/30 to-pink-500/30 border border-purple-500/30">
+                            <img src="/src/Ai.gif" alt="AI Avatar" class="w-12 h-12 rounded-full object-cover">
+                        </div>
+                        <h2 class="text-2xl font-semibold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Hello, I'm an Artifical Intelligence</h2>
+                        <p class="text-gray-300 max-w-md">
+                            Ask me anything - I'm powered by Google's Intellisense and ready to help with your questions
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Input Area -->
+                <div class="border-t border-purple-500/30 p-4 bg-gradient-to-r from-purple-900/50 to-blue-900/50">
+                    <form id="chat-form" class="flex gap-4">
+                        <input
+                            type="text"
+                            id="message-input"
+                            placeholder="Type your message..."
+                            class="flex-1 bg-white/10 rounded-xl px-6 py-4 placeholder-gray-400 text-white border border-purple-500/30 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all"
+                        />
+                        <button
+                            type="submit"
+                            class="bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl px-6 py-4 font-medium text-white hover:from-purple-500 hover:to-pink-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-purple-500/20"
+                        >
+                            <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="m22 2-7 20-4-9-9-4Z"/>
+                                <path d="M22 2 11 13"/>
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Splash screen handling
+        const splashScreen = document.getElementById('splash-screen');
+        const mainContent = document.getElementById('main-content');
+
+        // Show splash screen for 2 seconds
+        setTimeout(() => {
+            splashScreen.classList.add('fade-out');
+            mainContent.classList.add('visible');
+            setTimeout(() => {
+                splashScreen.style.display = 'none';
+            }, 500);
+        }, 2000);
+
+        const messagesContainer = document.getElementById('messages');
+        const welcomeMessage = document.getElementById('welcome-message');
+        const chatForm = document.getElementById('chat-form');
+        const messageInput = document.getElementById('message-input');
+        let isFirstMessage = true;
+
+        function createMessageElement(content, isUser) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `flex items-start gap-4 ${isUser ? 'flex-row-reverse' : ''}`;
+            
+            const iconDiv = document.createElement('div');
+            iconDiv.className = `flex-shrink-0 rounded-full p-2 ${isUser ? 'bg-gradient-to-r from-purple-500/30 to-pink-500/30 border border-purple-500/30' : 'bg-gradient-to-r from-blue-500/30 to-purple-500/30 border border-blue-500/30'}`;
+            
+            const icon = isUser ? `
+                <svg class="w-6 h-6 text-purple-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                </svg>
+            ` : `
+                <img src="/src/Ai.gif" alt="AI Avatar" class="w-6 h-6 rounded-full object-cover">
+            `;
+            
+            iconDiv.innerHTML = icon;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = `flex-1 rounded-2xl px-6 py-4 ${
+                isUser ? 'bg-gradient-to-r from-purple-500/30 to-pink-500/30 border border-purple-500/30 ml-12' : 'bg-gradient-to-r from-blue-500/30 to-purple-500/30 border border-blue-500/30 mr-12'
+            }`;
+            
+            const text = document.createElement('p');
+            text.className = 'whitespace-pre-wrap text-gray-100';
+            text.textContent = content;
+            
+            contentDiv.appendChild(text);
+            messageDiv.appendChild(iconDiv);
+            messageDiv.appendChild(contentDiv);
+            
+            return messageDiv;
+        }
+
+        function createLoadingMessage() {
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'flex items-start gap-4';
+            loadingDiv.innerHTML = `
+                <div class="flex-shrink-0 rounded-full p-2 bg-gradient-to-r from-blue-500/30 to-purple-500/30 border border-blue-500/30">
+                    <img src="/src/Ai.gif" alt="AI Avatar" class="w-6 h-6 rounded-full object-cover">
+                </div>
+                <div class="flex-1 rounded-2xl px-6 py-4 bg-gradient-to-r from-blue-500/30 to-purple-500/30 border border-blue-500/30 mr-12">
+                    <svg class="w-6 h-6 animate-spin text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                    </svg>
+                </div>
+            `;
+            return loadingDiv;
+        }
+
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            if (isFirstMessage) {
+                welcomeMessage.remove();
+                isFirstMessage = false;
+            }
+
+            messageInput.value = '';
+            messageInput.disabled = true;
+
+            // Add user message
+            messagesContainer.appendChild(createMessageElement(message, true));
+            
+            // Add loading message
+            const loadingMessage = createLoadingMessage();
+            messagesContainer.appendChild(loadingMessage);
+            
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message }),
+                });
+
+                const data = await response.json();
+                
+                // Remove loading message
+                loadingMessage.remove();
+                
+                // Add AI response
+                messagesContainer.appendChild(createMessageElement(data.response, false));
+                
+                // Scroll to bottom
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            } catch (error) {
+                console.error('Error:', error);
+                loadingMessage.remove();
+                messagesContainer.appendChild(
+                    createMessageElement('Sorry, I encountered an error. Please try again.', false)
+                );
+            }
+
+            messageInput.disabled = false;
+            messageInput.focus();
+        });
+    </script>
+</body>
+</html>
