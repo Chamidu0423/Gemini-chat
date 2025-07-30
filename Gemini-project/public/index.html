@@ -6,7 +6,8 @@
     <title>Gemini AI Chat</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        tailwind.config = {
+        // Fallback configuration if Tailwind fails to load
+        window.tailwindConfig = {
             theme: {
                 extend: {
                     colors: {
@@ -31,6 +32,41 @@
                     }
                 }
             }
+        };
+        
+        // Configure Tailwind when it loads
+        if (typeof tailwind !== 'undefined') {
+            tailwind.config = window.tailwindConfig;
+        } else {
+            // Add fallback styles if Tailwind CDN fails
+            document.addEventListener('DOMContentLoaded', function() {
+                const style = document.createElement('style');
+                style.textContent = `
+                    .bg-gradient-to-br { background: linear-gradient(to bottom right, #581c87, #1e3a8a, #581c87); }
+                    .text-white { color: white; }
+                    .min-h-screen { min-height: 100vh; }
+                    .max-w-5xl { max-width: 64rem; margin: 0 auto; }
+                    .px-4 { padding-left: 1rem; padding-right: 1rem; }
+                    .py-8 { padding-top: 2rem; padding-bottom: 2rem; }
+                    .text-center { text-align: center; }
+                    .mb-8 { margin-bottom: 2rem; }
+                    .rounded-2xl { border-radius: 1rem; }
+                    .p-6 { padding: 1.5rem; }
+                    .space-y-6 > * + * { margin-top: 1.5rem; }
+                    .flex { display: flex; }
+                    .items-center { align-items: center; }
+                    .justify-center { justify-content: center; }
+                    .space-x-2 > * + * { margin-left: 0.5rem; }
+                    .rounded-full { border-radius: 9999px; }
+                    .px-4 { padding-left: 1rem; padding-right: 1rem; }
+                    .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+                    .bg-white\/20 { background-color: rgba(255, 255, 255, 0.2); }
+                    .backdrop-blur-sm { backdrop-filter: blur(4px); }
+                    .border { border-width: 1px; }
+                    .border-purple-500\/30 { border-color: rgba(168, 85, 247, 0.3); }
+                `;
+                document.head.appendChild(style);
+            });
         }
     </script>
     <style>
@@ -91,7 +127,7 @@
                         <div class="p-4 rounded-full bg-gradient-to-r from-purple-500/30 to-pink-500/30 border border-purple-500/30">
                             <img src="/src/Ai.gif" alt="AI Avatar" class="w-12 h-12 rounded-full object-cover">
                         </div>
-                        <h2 class="text-2xl font-semibold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Hello, I'm an Artifical Intelligence</h2>
+                        <h2 class="text-2xl font-semibold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Hello, I'm an Artificial Intelligence</h2>
                         <p class="text-gray-300 max-w-md">
                             Ask me anything - I'm powered by Google's Intellisense and ready to help with your questions
                         </p>
@@ -229,8 +265,9 @@
                 // Remove loading message
                 loadingMessage.remove();
                 
-                // Add AI response
-                messagesContainer.appendChild(createMessageElement(data.response, false));
+                // Add AI response (handle both success and error responses)
+                const responseText = data.response || data.error || 'Sorry, I encountered an error. Please try again.';
+                messagesContainer.appendChild(createMessageElement(responseText, false));
                 
                 // Scroll to bottom
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -238,7 +275,7 @@
                 console.error('Error:', error);
                 loadingMessage.remove();
                 messagesContainer.appendChild(
-                    createMessageElement('Sorry, I encountered an error. Please try again.', false)
+                    createMessageElement('Sorry, I\'m having trouble connecting right now. Please check your internet connection and try again.', false)
                 );
             }
 
