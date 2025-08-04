@@ -35,8 +35,9 @@ cd [project-directory]
 
 
 2. Install dependencies:
-bash
+```
 npm install
+```
 
 
 3. Create a `.env` file in the root directory and add your Gemini AI API key:
@@ -45,9 +46,9 @@ GEMINI_API_KEY=your_api_key_here
 
 
 4. Start the development server:
-bash
+```
 npm start
-
+```
 The application will be available at `http://localhost:3000`
 
 
